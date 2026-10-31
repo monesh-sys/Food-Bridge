@@ -1,0 +1,38 @@
+rules_version = '2';
+service cloud.firestore {
+ match /databases/{database}/documents {
+  function signedIn(){return request.auth != null;}
+  function userDoc(){return get(/databases/$(database)/documents/users/$(request.auth.uid));}
+  function isAdmin(){return signedIn() && userDoc().data.role == 'admin';}
+  function isTrust(){return signedIn() && userDoc().data.role == 'trust';}
+  match /users/{uid} {
+   allow read: if signedIn() && (request.auth.uid == uid || isAdmin());
+   allow create: if signedIn() && request.auth.uid == uid && request.resource.data.role in ['donor','trust'] && request.resource.data.keys().hasOnly(['name','email','role','orgName','lat','lng','createdAt']);
+   allow update: if signedIn() && (isAdmin() || (request.auth.uid==uid && request.resource.data.role==resource.data.role && request.resource.data.email==resource.data.email));
+   allow delete: if isAdmin();
+  }
+  match /publicProfiles/{uid} {
+   allow read: if signedIn();
+   allow create: if signedIn() && request.auth.uid==uid && request.resource.data.uid==uid && request.resource.data.role in ['donor','trust'] && request.resource.data.keys().hasOnly(['uid','name','role','orgName','lat','lng','createdAt']);
+   allow update: if signedIn() && request.auth.uid==uid && request.resource.data.role==resource.data.role && request.resource.data.uid==uid;
+   allow delete: if isAdmin();
+  }
+  match /donations/{id} {
+   allow read: if signedIn();
+   allow create: if signedIn() && request.resource.data.donorId==request.auth.uid && userDoc().data.role in ['donor','admin'] && request.resource.data.status=='available' && request.resource.data.keys().hasOnly(['title','category','quantity','preparedAt','pickupDeadline','pickupLocation','notes','donorId','donorName','lat','lng','status','createdAt']);
+   allow update: if isAdmin() || (signedIn() && resource.data.donorId==request.auth.uid && request.resource.data.donorId==resource.data.donorId && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status','updatedAt']) && request.resource.data.status in ['available','matched','completed','cancelled']);
+   allow delete: if isAdmin() || (signedIn() && resource.data.donorId==request.auth.uid && resource.data.status=='available');
+  }
+  match /requests/{id} {
+   allow read: if signedIn() && (resource.data.requesterId==request.auth.uid || resource.data.donorId==request.auth.uid || isAdmin());
+   allow create: if signedIn() && isTrust() && request.resource.data.requesterId==request.auth.uid && request.resource.data.status=='pending' && request.resource.data.keys().hasOnly(['donationId','donationTitle','donorId','requesterId','requesterName','status','createdAt']);
+   allow update: if isAdmin() || (signedIn() && resource.data.donorId==request.auth.uid && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status']) && request.resource.data.status in ['approved','rejected','completed']);
+   allow delete: if isAdmin();
+  }
+  match /notifications/{id} {
+   allow read: if signedIn() && resource.data.recipientId==request.auth.uid;
+   allow create: if signedIn() && request.resource.data.recipientId is string && request.resource.data.donationId is string && request.resource.data.keys().hasOnly(['recipientId','donationId','donationTitle','donorName','distanceKm','message','status','createdAt']);
+   allow update, delete: if signedIn() && resource.data.recipientId==request.auth.uid;
+  }
+ }
+}
