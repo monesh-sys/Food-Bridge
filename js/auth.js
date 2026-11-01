@@ -189,20 +189,23 @@ $("switchMode").addEventListener("click", () => {
 // FORGOT PASSWORD
 const forgotButton = $("forgotPasswordButton");
 
-console.log("Forgot password button:", forgotButton);
-
 forgotButton?.addEventListener("click", async () => {
-    console.log("Forgot password clicked!");
 
     if (!ready()) return;
 
     const email = $("loginEmail").value.trim();
 
     if (!email) {
-        showMessage("Please enter your email address first.", true);
+        showMessage(
+            "Please enter your registered email address first.",
+            true
+        );
         $("loginEmail").focus();
         return;
     }
+
+    forgotButton.disabled = true;
+    forgotButton.textContent = "Sending...";
 
     try {
         showMessage("Sending password reset email...");
@@ -216,6 +219,10 @@ forgotButton?.addEventListener("click", async () => {
     } catch (error) {
         console.error("Password reset error:", error);
         showMessage(explain(error), true);
+
+    } finally {
+        forgotButton.disabled = false;
+        forgotButton.textContent = "Forgot password?";
     }
 });
 
