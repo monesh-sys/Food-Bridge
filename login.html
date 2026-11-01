@@ -126,18 +126,26 @@
                 </label>
 
                 <label>
-                    Password
+    Password
 
-                    <input
-                        id="loginPassword"
-                        type="password"
-                        autocomplete="current-password"
-                        required
-                        minlength="6"
-                        placeholder="At least 6 characters"
-                    >
-                </label>
+    <div class="password-wrapper">
+        <input
+            id="loginPassword"
+            type="password"
+            autocomplete="current-password"
+            required
+            minlength="6"
+            placeholder="At least 6 characters"
+        >
 
+        <button
+            type="button"
+            class="password-toggle"
+            data-target="loginPassword"
+            aria-label="Show password"
+        >👁</button>
+    </div>
+</label>
                 <!-- FORGOT PASSWORD -->
                 <div class="forgot-password">
                     <button
