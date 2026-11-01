@@ -192,6 +192,12 @@ $("switchMode")?.addEventListener("click", () => {
 
 // FORGOT PASSWORD
 const forgotButton = $("forgotPasswordButton");
+console.log("FOODBRIDGE AUTH.JS LOADED");
+console.log("FORGOT BUTTON:", forgotButton);
+
+forgotButton?.addEventListener("click", () => {
+  alert("Forgot Password click detected!");
+});
 
 forgotButton?.addEventListener("click", async () => {
 
