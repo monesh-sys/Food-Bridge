@@ -191,27 +191,14 @@ $("switchMode")?.addEventListener("click", () => {
 });
 
 // FORGOT PASSWORD
-const forgotButton = $("forgotPasswordButton");
-console.log("FOODBRIDGE AUTH.JS LOADED");
-console.log("FORGOT BUTTON:", forgotButton);
-
-forgotButton?.addEventListener("click", () => {
-  alert("Forgot Password click detected!");
-});
+const forgotButton = document.getElementById("forgotPasswordButton");
 
 forgotButton?.addEventListener("click", async () => {
-
-  if (!ready()) return;
-
-  const email = $("loginEmail").value.trim();
+  const email = document.getElementById("loginEmail").value.trim();
 
   if (!email) {
-    showMessage(
-      "Please enter your registered email address first.",
-      true
-    );
-
-    $("loginEmail").focus();
+    showMessage("Please enter your registered email first.", true);
+    document.getElementById("loginEmail").focus();
     return;
   }
 
@@ -219,19 +206,12 @@ forgotButton?.addEventListener("click", async () => {
   forgotButton.textContent = "Sending...";
 
   try {
-    showMessage("Sending password reset email...");
-
     await sendPasswordResetEmail(auth, email);
 
-    showMessage(
-      "Password reset email sent! Check your inbox and spam folder."
-    );
-
+    showMessage("Password reset email sent! Check your inbox and spam folder.");
   } catch (error) {
     console.error("Password reset error:", error);
-
     showMessage(explain(error), true);
-
   } finally {
     forgotButton.disabled = false;
     forgotButton.textContent = "Forgot password?";
