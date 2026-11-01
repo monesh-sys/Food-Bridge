@@ -25,8 +25,10 @@ let coords = null;
 let pendingProfile = null;
 
 // DISPLAY MESSAGE
-function showMessage(t, error = false) {
-  message.textContent = t;
+function showMessage(text, error = false) {
+  if (!message) return;
+
+  message.textContent = text;
   message.classList.remove("hidden", "error");
 
   if (error) {
@@ -40,7 +42,7 @@ function explain(err) {
 
   const known = {
     "auth/email-already-in-use":
-      "This email already has an account. Switch to Sign in and use the same email/password.",
+      "This email already has an account. Switch to Sign in.",
 
     "auth/invalid-email":
       "Enter a valid email address.",
@@ -70,10 +72,10 @@ function explain(err) {
       "Add this domain in Firebase Console → Authentication → Settings → Authorized domains.",
 
     "permission-denied":
-      "Firebase sign-in succeeded, but Firestore blocked profile saving. Check your Firestore rules.",
+      "Firestore blocked profile saving. Check your Firestore rules.",
 
     "unavailable":
-      "Firestore is temporarily unavailable. Check your connection and retry."
+      "Firestore is temporarily unavailable. Check your connection."
   };
 
   return known[code] ||
@@ -139,19 +141,21 @@ $("signupLocation")?.addEventListener("click", () => {
   status.textContent = "Requesting location permission…";
 
   navigator.geolocation.getCurrentPosition(
-    p => {
+    position => {
       coords = {
-        lat: p.coords.latitude,
-        lng: p.coords.longitude
+        lat: position.coords.latitude,
+        lng: position.coords.longitude
       };
 
       status.textContent =
         "Location saved for nearby matching.";
     },
-    e => {
+
+    error => {
       status.textContent =
-        `Location unavailable (${e.message}). You can continue without it.`;
+        `Location unavailable (${error.message}). You can continue without it.`;
     },
+
     {
       enableHighAccuracy: true,
       timeout: 12000,
@@ -161,7 +165,7 @@ $("signupLocation")?.addEventListener("click", () => {
 });
 
 // SWITCH LOGIN / SIGNUP
-$("switchMode").addEventListener("click", () => {
+$("switchMode")?.addEventListener("click", () => {
   const up = signupForm.classList.contains("hidden");
 
   signupForm.classList.toggle("hidden", !up);
@@ -191,76 +195,72 @@ const forgotButton = $("forgotPasswordButton");
 
 forgotButton?.addEventListener("click", async () => {
 
-    if (!ready()) return;
+  if (!ready()) return;
 
-    const email = $("loginEmail").value.trim();
+  const email = $("loginEmail").value.trim();
 
-    if (!email) {
-        showMessage(
-            "Please enter your registered email address first.",
-            true
-        );
-        $("loginEmail").focus();
-        return;
-    }
+  if (!email) {
+    showMessage(
+      "Please enter your registered email address first.",
+      true
+    );
 
-    forgotButton.disabled = true;
-    forgotButton.textContent = "Sending...";
+    $("loginEmail").focus();
+    return;
+  }
 
-    try {
-        showMessage("Sending password reset email...");
+  forgotButton.disabled = true;
+  forgotButton.textContent = "Sending...";
 
-        await sendPasswordResetEmail(auth, email);
+  try {
+    showMessage("Sending password reset email...");
 
-        showMessage(
-            "Password reset email sent! Check your inbox and spam folder."
-        );
+    await sendPasswordResetEmail(auth, email);
 
-    } catch (error) {
-        console.error("Password reset error:", error);
-        showMessage(explain(error), true);
+    showMessage(
+      "Password reset email sent! Check your inbox and spam folder."
+    );
 
-    } finally {
-        forgotButton.disabled = false;
-        forgotButton.textContent = "Forgot password?";
-    }
-});
+  } catch (error) {
+    console.error("Password reset error:", error);
+
+    showMessage(explain(error), true);
 
   } finally {
-    button.disabled = false;
-    button.textContent = "Forgot password?";
+    forgotButton.disabled = false;
+    forgotButton.textContent = "Forgot password?";
   }
 });
 
 // LOGIN
-loginForm.addEventListener("submit", async e => {
-  e.preventDefault();
+loginForm.addEventListener("submit", async event => {
+  event.preventDefault();
 
   if (!ready()) return;
 
-  const b = loginForm.querySelector('button[type="submit"]');
+  const button = loginForm.querySelector('button[type="submit"]');
 
-  b.disabled = true;
+  button.disabled = true;
 
   try {
-    const cred = await signInWithEmailAndPassword(
+    const credential = await signInWithEmailAndPassword(
       auth,
       $("loginEmail").value.trim(),
       $("loginPassword").value
     );
 
-    const snap = await getDoc(
-      doc(db, "users", cred.user.uid)
+    const snapshot = await getDoc(
+      doc(db, "users", credential.user.uid)
     );
 
-    if (!snap.exists()) {
+    if (!snapshot.exists()) {
       const role = new URLSearchParams(location.search).get("role");
 
       await saveProfile(
-        cred.user,
+        credential.user,
         pendingProfile || {
-          name: cred.user.displayName ||
-            cred.user.email.split("@")[0],
+          name: credential.user.displayName ||
+            credential.user.email.split("@")[0],
           role: role === "trust" ? "trust" : "donor",
           orgName: ""
         }
@@ -269,55 +269,55 @@ loginForm.addEventListener("submit", async e => {
 
     location.href = "dashboard.html";
 
-  } catch (err) {
-    showMessage(explain(err), true);
+  } catch (error) {
+    showMessage(explain(error), true);
 
   } finally {
-    b.disabled = false;
+    button.disabled = false;
   }
 });
 
 // SIGNUP
-signupForm.addEventListener("submit", async e => {
-  e.preventDefault();
+signupForm.addEventListener("submit", async event => {
+  event.preventDefault();
 
   if (!ready()) return;
 
-  const b = signupForm.querySelector('button[type="submit"]');
+  const button = signupForm.querySelector('button[type="submit"]');
 
-  b.disabled = true;
+  button.disabled = true;
 
   try {
-    const p = {
+    const profile = {
       name: $("signupName").value.trim(),
       role: $("signupRole").value,
       orgName: $("signupOrg").value.trim()
     };
 
     pendingProfile = {
-      ...p,
+      ...profile,
       ...(coords || {})
     };
 
-    const cred = await createUserWithEmailAndPassword(
+    const credential = await createUserWithEmailAndPassword(
       auth,
       $("signupEmail").value.trim(),
       $("signupPassword").value
     );
 
-    await updateProfile(cred.user, {
-      displayName: p.name
+    await updateProfile(credential.user, {
+      displayName: profile.name
     });
 
-    await saveProfile(cred.user, pendingProfile);
+    await saveProfile(credential.user, pendingProfile);
 
     location.href = "dashboard.html";
 
-  } catch (err) {
-    showMessage(explain(err), true);
+  } catch (error) {
+    showMessage(explain(error), true);
 
   } finally {
-    b.disabled = false;
+    button.disabled = false;
   }
 });
 
