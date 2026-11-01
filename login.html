@@ -189,16 +189,25 @@
                 </label>
 
                 <label>
-                    Password
+    Password
 
-                    <input
-                        id="signupPassword"
-                        type="password"
-                        required
-                        minlength="6"
-                        placeholder="At least 6 characters"
-                    >
-                </label>
+    <div class="password-wrapper">
+        <input
+            id="signupPassword"
+            type="password"
+            required
+            minlength="6"
+            placeholder="At least 6 characters"
+        >
+
+        <button
+            type="button"
+            class="password-toggle"
+            data-target="signupPassword"
+            aria-label="Show password"
+        >👁</button>
+    </div>
+</label>
 
                 <label>
                     Join as
