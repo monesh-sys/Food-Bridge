@@ -1,4 +1,133 @@
-<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Food requests | FoodBridge</title><link rel="stylesheet" href="css/style.css"></head><body>
-<header class="app-header"><a class="brand" href="index.html"><span class="brand-icon">FB</span>FoodBridge</a><div class="header-user"><a href="dashboard.html">Dashboard</a><button id="logoutButton" class="btn btn-outline btn-small">Log out</button></div></header>
-<div class="app-layout"><aside class="sidebar"><span class="sidebar-label">WORKSPACE</span><a class="side-link" href="dashboard.html">▦ Dashboard</a><a class="side-link" href="donate.html">＋ Publish donation</a><a class="side-link active" href="requests.html">☷ Food requests</a><a class="side-link hidden" id="adminNav" href="admin.html">⚙ Admin panel</a></aside>
-<main class="app-main"><div class="page-heading"><div><span class="eyebrow">COMMUNITY MATCHING</span><h1>Food requests</h1><p>Trusts see nearby food automatically. Donors review collection requests before confirming.</p></div></div><div id="pageMessage" class="message hidden"></div><div class="two-column"><section class="panel"><div class="panel-heading"><div><h2>Available donations</h2><p>Request collection for an available listing.</p></div></div><div id="availableList" class="listing-stack">Loading…</div></section><section class="panel"><div class="panel-heading"><div><h2>My requests</h2><p>Requests you submitted or received.</p></div></div><div id="myRequests" class="listing-stack">Loading…</div></section></div></main></div><script type="module" src="js/requests.js"></script></body></html>
+```html
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <title>Food Requests | FoodBridge</title>
+
+  <!-- FoodBridge Logo / Favicon -->
+  <link rel="icon" type="image/png" href="images/foodbridge-logo.png">
+  <link rel="apple-touch-icon" href="images/foodbridge-logo.png">
+
+  <link rel="stylesheet" href="css/style.css">
+
+  <style>
+    .brand {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      text-decoration: none;
+    }
+
+    .brand-logo {
+      width: 38px;
+      height: 38px;
+      object-fit: contain;
+      border-radius: 8px;
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- Header -->
+  <header class="app-header">
+    <a class="brand" href="index.html">
+      <img
+        src="images/foodbridge-logo.png"
+        alt="FoodBridge Logo"
+        class="brand-logo"
+      >
+      FoodBridge
+    </a>
+
+    <div class="header-user">
+      <a href="dashboard.html">Dashboard</a>
+      <button id="logoutButton" class="btn btn-outline btn-small">
+        Log out
+      </button>
+    </div>
+  </header>
+
+  <!-- Main Layout -->
+  <div class="app-layout">
+
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <span class="sidebar-label">WORKSPACE</span>
+
+      <a class="side-link" href="dashboard.html">
+        ▦ Dashboard
+      </a>
+
+      <a class="side-link" href="donate.html">
+        ＋ Publish donation
+      </a>
+
+      <a class="side-link active" href="requests.html">
+        ☷ Food requests
+      </a>
+
+      <a class="side-link hidden" id="adminNav" href="admin.html">
+        ⚙ Admin panel
+      </a>
+    </aside>
+
+    <!-- Page Content -->
+    <main class="app-main">
+
+      <div class="page-heading">
+        <div>
+          <span class="eyebrow">COMMUNITY MATCHING</span>
+          <h1>Food requests</h1>
+          <p>
+            Trusts see nearby food automatically.
+            Donors review collection requests before confirming.
+          </p>
+        </div>
+      </div>
+
+      <div id="pageMessage" class="message hidden"></div>
+
+      <div class="two-column">
+
+        <!-- Available Donations -->
+        <section class="panel">
+          <div class="panel-heading">
+            <div>
+              <h2>Available donations</h2>
+              <p>Request collection for an available listing.</p>
+            </div>
+          </div>
+
+          <div id="availableList" class="listing-stack">
+            Loading…
+          </div>
+        </section>
+
+        <!-- My Requests -->
+        <section class="panel">
+          <div class="panel-heading">
+            <div>
+              <h2>My requests</h2>
+              <p>Requests you submitted or received.</p>
+            </div>
+          </div>
+
+          <div id="myRequests" class="listing-stack">
+            Loading…
+          </div>
+        </section>
+
+      </div>
+    </main>
+  </div>
+
+  <!-- Firebase Requests Script -->
+  <script type="module" src="js/requests.js"></script>
+
+</body>
+</html>
+```
