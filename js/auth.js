@@ -187,39 +187,37 @@ $("switchMode").addEventListener("click", () => {
 });
 
 // FORGOT PASSWORD
-$("forgotPasswordButton")?.addEventListener("click", async () => {
-  if (!ready()) return;
+const forgotButton = $("forgotPasswordButton");
 
-  const email = $("loginEmail").value.trim();
-  const button = $("forgotPasswordButton");
+console.log("Forgot password button:", forgotButton);
 
-  if (!email) {
-    showMessage(
-      "Please enter your registered email address first.",
-      true
-    );
+forgotButton?.addEventListener("click", async () => {
+    console.log("Forgot password clicked!");
 
-    $("loginEmail").focus();
-    return;
-  }
+    if (!ready()) return;
 
-  button.disabled = true;
-  button.textContent = "Sending reset email...";
+    const email = $("loginEmail").value.trim();
 
-  try {
-    await sendPasswordResetEmail(auth, email);
+    if (!email) {
+        showMessage("Please enter your email address first.", true);
+        $("loginEmail").focus();
+        return;
+    }
 
-    showMessage(
-      "Password reset email sent! Check your inbox and spam folder."
-    );
+    try {
+        showMessage("Sending password reset email...");
 
-  } catch (err) {
-    console.error("Password reset error:", err);
+        await sendPasswordResetEmail(auth, email);
 
-    showMessage(
-      explain(err),
-      true
-    );
+        showMessage(
+            "Password reset email sent! Check your inbox and spam folder."
+        );
+
+    } catch (error) {
+        console.error("Password reset error:", error);
+        showMessage(explain(error), true);
+    }
+});
 
   } finally {
     button.disabled = false;
